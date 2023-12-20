@@ -97,6 +97,7 @@ wire dma_wbs_ack_o;
 wire [31:0] dram_wbs_adr_i;
 wire acc_data_valid_i;
 wire [31:0] acc_data_i;
+wire dram_fun_sel;
 
 user_proj_example mprj (
 `ifdef USE_POWER_PINS
@@ -134,6 +135,7 @@ user_proj_example mprj (
     .irq(user_irq),
 
     // DMA
+    .dma_fun_sel(dram_fun_sel),
     .dma_wbs_cyc_i(dram_wbs_cyc_i),
     .dma_wbs_stb_i(dram_wbs_stb_i),
     .dma_wbs_we_i(dram_wbs_we_i),
@@ -142,7 +144,6 @@ user_proj_example mprj (
     .dma_wbs_ack_o(dma_wbs_ack_o)
 
 );
-
 
 DMA #(
     .DATA_WIDTH(DATA_WIDTH),
@@ -160,6 +161,7 @@ DMA #(
     // .cpu_wbs_ack_o(wbs_ack_o),
     // .cpu_wbs_dat_o(wbs_dat_o),
     // DRAM control
+    .dram_fun_sel(dram_fun_sel),
     .dram_wbs_ack_o(dma_wbs_ack_o),
     .dram_burst_en_o(dram_burst_valid_o),
     .dram_wbs_dat_o(wbs_dat_o),

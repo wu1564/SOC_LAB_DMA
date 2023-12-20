@@ -1694,8 +1694,8 @@ void main()
 
  (*(volatile uint32_t*)0x2600000c) = 0xAB510000;
 
- (*(volatile uint32_t*)0x36000000) = 0x002c;
+ (*(volatile uint32_t*)0x36000000) = 0x407c002c;
  (*(volatile uint32_t*)0x2600000c) = 0x60100000;
- (*(volatile uint32_t*)0x36000000) = 0x407c;
+ (*(volatile uint32_t*)0x36100000) = 0x003c407c;
  (*(volatile uint32_t*)0x2600000c) = 0x70200000;
 }

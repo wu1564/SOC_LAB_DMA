@@ -21,7 +21,7 @@ Linker script and memory map
 
                 0x0000000000000000                __DYNAMIC = 0x0
 
-.text           0x0000000010000000      0x794
+.text           0x0000000010000000      0x798
                 0x0000000010000000                _ftext = .
  *crt0*(.text)
  .text          0x0000000010000000      0x174 counter_la.elf-crt0_vex.o
@@ -33,20 +33,20 @@ Linker script and memory map
  .text          0x0000000010000174       0xb4 counter_la.elf-isr.o
                 0x00000000100001d4                isr
  .text          0x0000000010000228        0x0 counter_la.elf-matmul.o
- .text          0x0000000010000228      0x548 counter_la.elf-counter_la.o
+ .text          0x0000000010000228      0x54c counter_la.elf-counter_la.o
                 0x0000000010000260                putchar
                 0x00000000100002c8                print
                 0x000000001000031c                main
- .text          0x0000000010000770       0x24 /home/test/Desktop/opt/riscv/bin/../lib/gcc/riscv32-unknown-elf/12.1.0/libgcc.a(muldi3.o)
-                0x0000000010000770                __mulsi3
-                0x0000000010000794                _etext = .
+ .text          0x0000000010000774       0x24 /home/test/Desktop/opt/riscv/bin/../lib/gcc/riscv32-unknown-elf/12.1.0/libgcc.a(muldi3.o)
+                0x0000000010000774                __mulsi3
+                0x0000000010000798                _etext = .
 
-.rela.dyn       0x0000000010000794        0x0
- .rela.text     0x0000000010000794        0x0 counter_la.elf-crt0_vex.o
+.rela.dyn       0x0000000010000798        0x0
+ .rela.text     0x0000000010000798        0x0 counter_la.elf-crt0_vex.o
 
-.rodata         0x0000000010000794        0x4
+.rodata         0x0000000010000798        0x0
                 0x0000000010000798                . = ALIGN (0x8)
- *fill*         0x0000000010000794        0x4 
+ *fill*         0x0000000010000798        0x0 
                 0x0000000010000798                _frodata = .
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  *(.rodata1)

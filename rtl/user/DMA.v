@@ -1,4 +1,4 @@
-`define CPU_WRITE 16'h3600
+`define CPU_WRITE 8'h36
 
 module DMA #(
     parameter DATA_WIDTH = 32,
@@ -19,6 +19,7 @@ module DMA #(
     input  dram_wbs_ack_o,
     input  dram_burst_en_o,
     input  [31:0] dram_wbs_dat_o,
+    output dram_fun_sel,
     output dram_wbs_stb_i,
     output dram_wbs_cyc_i,
     output dram_wbs_we_i,
@@ -36,11 +37,14 @@ localparam RESEND = 2'd3;
 localparam INS_ADDR = 8;
 
 // State Machine
+reg ins_cnt_w, ins_cnt_r;
 reg [1:0] ps, ns;
+// Instruction Buffer
+reg [15:0] ins_buff_w, ins_buff_r;
 // CPU instruction
 wire cpu_write;
 wire cpu_write_sig;
-wire [15:0] cpu_checkBit;
+wire [7:0] cpu_checkBit;
 // FIFO
 wire idle;
 wire not_empty;
@@ -50,13 +54,14 @@ wire i_read_en;
 wire o_fifo_full;
 wire o_fifo_empty;
 wire o_fifo_valid;
-wire [DATA_WIDTH-1:0] o_fifo_data;
+wire [DATA_WIDTH:0] o_fifo_data;
 reg write_en_w, write_en_r;
 reg read_en_w,  read_en_r;
 // SDRAM
 reg  dram_wbs_stb_w, dram_wbs_stb_r;
 reg  dram_wbs_cyc_w, dram_wbs_cyc_r;
 reg  dram_wbs_we_w, dram_wbs_we_r;
+reg  dram_fun_sel_w, dram_fun_sel_r;
 wire dram_send_done;
 // ACC
 reg  acc_data_valid_w, acc_data_valid_r;
@@ -64,15 +69,16 @@ reg  [31:0] acc_data_w, acc_data_r;
 // stage cnt
 reg flag_w, flag_r;
 //
-reg [INS_ADDR-1:0] base_addr_w, base_addr_r;
-reg [INS_ADDR-1:0] end_addr_w, end_addr_r;
+wire empty_wr = cpu_write & o_fifo_empty;
+reg  [INS_ADDR-1:0] base_addr_w, base_addr_r;
+reg  [INS_ADDR-1:0] end_addr_w, end_addr_r;
 
 //=======================================================================================
 // Continuous Assignment
 //=======================================================================================
 // CPU
 assign cpu_write_sig = (cpu_wbs_cyc_i & cpu_wbs_stb_i & cpu_wbs_we_i);
-assign cpu_checkBit = cpu_wbs_adr_i[31-:16];
+assign cpu_checkBit = cpu_wbs_adr_i[31-:8];
 assign cpu_write = (cpu_write_sig && cpu_checkBit == `CPU_WRITE);
 // FIFO
 assign i_write_en = write_en_r;
@@ -81,6 +87,7 @@ assign idle = (ps == IDLE);
 assign not_empty = ~o_fifo_empty;
 assign multiIns = idle & not_empty;
 // SDRAM
+assign dram_fun_sel   = dram_fun_sel_r;
 assign dram_wbs_cyc_i = dram_wbs_cyc_r;
 assign dram_wbs_stb_i = dram_wbs_stb_r;
 assign dram_wbs_we_i  = dram_wbs_we_r;
@@ -95,11 +102,11 @@ assign acc_data_valid_i = acc_data_valid_r;
 //=======================================================================================
 FIFO#(
     .DEPTH(DEPTH),
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH+1)
 )fifo_inst(
     .clk(wb_clk_i),
     .rst(wb_rst_i),
-    .i_data(cpu_wbs_dat_i),
+    .i_data({cpu_wbs_adr_i[20], cpu_wbs_dat_i}),
     .write_en(i_write_en),
     .read_en(i_read_en),
     .full(o_fifo_full),
@@ -116,7 +123,7 @@ always @(*) begin
         IDLE: begin
             if(not_empty) begin
                 ns = FETCH;
-            end else if(cpu_write) begin
+            end else if(cpu_write | ins_cnt_r) begin
                 ns = READ;
             end else begin
                 ns = IDLE;
@@ -138,7 +145,7 @@ always @(*) begin
 end
 
 always @(*) begin
-    if(~(idle & o_fifo_empty) & cpu_write) begin
+    if(~(idle & o_fifo_empty & ~ins_cnt_r) & cpu_write) begin
         write_en_w = 1'b1;
     end else begin
         write_en_w = 1'b0;
@@ -159,22 +166,38 @@ always @(*) begin
     end else begin
         flag_w = 1'b0;
     end
+    if(dram_send_done) begin
+        ins_cnt_w = ~ins_cnt_r;
+    end else begin
+        ins_cnt_w = ins_cnt_r;
+    end
 end
 
 always @(*) begin
     base_addr_w = base_addr_r;
     end_addr_w  = end_addr_r;
+    dram_fun_sel_w = dram_fun_sel_r;
+    ins_buff_w = ins_buff_r;
     case(ps)
         IDLE: begin
-            if(cpu_write & o_fifo_empty) begin
+            if(ins_cnt_r) begin
+                base_addr_w = ins_buff_r[15:8];
+                end_addr_w  = ins_buff_r[7:0];
+            end else if(empty_wr) begin
                 base_addr_w = cpu_wbs_dat_i[15:8];
                 end_addr_w  = cpu_wbs_dat_i[7:0];
+            end
+            if(empty_wr) begin
+                dram_fun_sel_w = cpu_wbs_adr_i[20];
+                ins_buff_w = cpu_wbs_dat_i[31-:16];
             end
         end
         FETCH: begin
             if(o_fifo_valid) begin
                 base_addr_w = o_fifo_data[15:8];
                 end_addr_w  = o_fifo_data[7:0];
+                dram_fun_sel_w = o_fifo_data[DATA_WIDTH];
+                ins_buff_w = o_fifo_data[31-:16];
             end
         end
         READ: begin
@@ -225,8 +248,10 @@ end
 always @(posedge wb_clk_i or posedge wb_rst_i) begin
     if(wb_rst_i) begin
         ps <= IDLE;
+        ins_buff_r <= 16'd0;
     end else begin
         ps <= ns;
+        ins_buff_r <= ins_buff_w;
     end
 end
 
@@ -243,8 +268,10 @@ end
 always @(posedge wb_clk_i or posedge wb_rst_i) begin
     if(wb_rst_i) begin
         flag_r <= 1'b0;
+        ins_cnt_r <= 1'b0;
     end else begin
         flag_r <= flag_w;
+        ins_cnt_r <= ins_cnt_w;
     end
 end
 
@@ -263,10 +290,12 @@ always @(posedge wb_clk_i or posedge wb_rst_i) begin
         dram_wbs_stb_r <= 1'b0;
         dram_wbs_cyc_r <= 1'b0;
         dram_wbs_we_r  <= 1'b0;
+        dram_fun_sel_r <= 1'b0;
     end else begin
         dram_wbs_stb_r <= dram_wbs_stb_w;
         dram_wbs_cyc_r <= dram_wbs_cyc_w;
         dram_wbs_we_r  <= dram_wbs_we_w;
+        dram_fun_sel_r <= dram_fun_sel_w;
     end
 end
 
@@ -279,6 +308,7 @@ always @(posedge wb_clk_i or posedge wb_rst_i) begin
         acc_data_r <= acc_data_w;
     end
 end
+
 
 //=============================================================
 

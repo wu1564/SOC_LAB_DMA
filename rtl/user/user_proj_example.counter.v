@@ -70,6 +70,7 @@ module user_proj_example #(
     output [2:0] irq,
 
     // dma
+    input dma_fun_sel,
     input dma_wbs_cyc_i,
     input dma_wbs_we_i,
     input dma_wbs_stb_i,

@@ -64,7 +64,7 @@ Disassembly of section .text:
 100000c8:	28000597          	auipc	a1,0x28000
 100000cc:	05c58593          	addi	a1,a1,92 # 38000124 <_esram>
 100000d0:	00000617          	auipc	a2,0x0
-100000d4:	6c860613          	addi	a2,a2,1736 # 10000798 <_erodata>
+100000d4:	6c860613          	addi	a2,a2,1736 # 10000798 <_etext>
 
 100000d8 <sram_loop>:
 100000d8:	00b50c63          	beq	a0,a1,100000f0 <data_init>
@@ -78,7 +78,7 @@ Disassembly of section .text:
 100000f0:	00000513          	li	a0,0
 100000f4:	00000593          	li	a1,0
 100000f8:	00000617          	auipc	a2,0x0
-100000fc:	6a060613          	addi	a2,a2,1696 # 10000798 <_erodata>
+100000fc:	6a060613          	addi	a2,a2,1696 # 10000798 <_etext>
 
 10000100 <data_loop>:
 10000100:	00b50c63          	beq	a0,a1,10000118 <adder_init>
@@ -504,42 +504,37 @@ Disassembly of section .text:
 10000718:	ab510737          	lui	a4,0xab510
 1000071c:	00e7a023          	sw	a4,0(a5)
 10000720:	360007b7          	lui	a5,0x36000
-10000724:	02c00713          	li	a4,44
-10000728:	00e7a023          	sw	a4,0(a5) # 36000000 <_eadderram_rom+0x25fff744>
-1000072c:	260007b7          	lui	a5,0x26000
-10000730:	00c78793          	addi	a5,a5,12 # 2600000c <_eadderram_rom+0x15fff750>
-10000734:	60100737          	lui	a4,0x60100
-10000738:	00e7a023          	sw	a4,0(a5)
-1000073c:	360007b7          	lui	a5,0x36000
-10000740:	00004737          	lui	a4,0x4
-10000744:	07c70713          	addi	a4,a4,124 # 407c <_fstack+0x3a7c>
-10000748:	00e7a023          	sw	a4,0(a5) # 36000000 <_eadderram_rom+0x25fff744>
-1000074c:	260007b7          	lui	a5,0x26000
-10000750:	00c78793          	addi	a5,a5,12 # 2600000c <_eadderram_rom+0x15fff750>
-10000754:	70200737          	lui	a4,0x70200
-10000758:	00e7a023          	sw	a4,0(a5)
-1000075c:	00000013          	nop
-10000760:	01c12083          	lw	ra,28(sp)
-10000764:	01812403          	lw	s0,24(sp)
-10000768:	02010113          	addi	sp,sp,32
-1000076c:	00008067          	ret
+10000724:	407c0737          	lui	a4,0x407c0
+10000728:	02c70713          	addi	a4,a4,44 # 407c002c <_eadderram+0x87bfdac>
+1000072c:	00e7a023          	sw	a4,0(a5) # 36000000 <_eadderram_rom+0x25fff744>
+10000730:	260007b7          	lui	a5,0x26000
+10000734:	00c78793          	addi	a5,a5,12 # 2600000c <_eadderram_rom+0x15fff750>
+10000738:	60100737          	lui	a4,0x60100
+1000073c:	00e7a023          	sw	a4,0(a5)
+10000740:	361007b7          	lui	a5,0x36100
+10000744:	003c4737          	lui	a4,0x3c4
+10000748:	07c70713          	addi	a4,a4,124 # 3c407c <_fstack+0x3c3a7c>
+1000074c:	00e7a023          	sw	a4,0(a5) # 36100000 <_eadderram_rom+0x260ff744>
+10000750:	260007b7          	lui	a5,0x26000
+10000754:	00c78793          	addi	a5,a5,12 # 2600000c <_eadderram_rom+0x15fff750>
+10000758:	70200737          	lui	a4,0x70200
+1000075c:	00e7a023          	sw	a4,0(a5)
+10000760:	00000013          	nop
+10000764:	01c12083          	lw	ra,28(sp)
+10000768:	01812403          	lw	s0,24(sp)
+1000076c:	02010113          	addi	sp,sp,32
+10000770:	00008067          	ret
 
-10000770 <__mulsi3>:
-10000770:	00050613          	mv	a2,a0
-10000774:	00000513          	li	a0,0
-10000778:	0015f693          	andi	a3,a1,1
-1000077c:	00068463          	beqz	a3,10000784 <__mulsi3+0x14>
-10000780:	00c50533          	add	a0,a0,a2
-10000784:	0015d593          	srli	a1,a1,0x1
-10000788:	00161613          	slli	a2,a2,0x1
-1000078c:	fe0596e3          	bnez	a1,10000778 <__mulsi3+0x8>
-10000790:	00008067          	ret
-
-Disassembly of section .rodata:
-
-10000794 <_erodata-0x4>:
-10000794:	0000                	.2byte	0x0
-	...
+10000774 <__mulsi3>:
+10000774:	00050613          	mv	a2,a0
+10000778:	00000513          	li	a0,0
+1000077c:	0015f693          	andi	a3,a1,1
+10000780:	00068463          	beqz	a3,10000788 <__mulsi3+0x14>
+10000784:	00c50533          	add	a0,a0,a2
+10000788:	0015d593          	srli	a1,a1,0x1
+1000078c:	00161613          	slli	a2,a2,0x1
+10000790:	fe0596e3          	bnez	a1,1000077c <__mulsi3+0x8>
+10000794:	00008067          	ret
 
 Disassembly of section .bss:
 
@@ -587,7 +582,7 @@ Disassembly of section .mprjram:
 3800007c:	00078593          	mv	a1,a5
 38000080:	00068513          	mv	a0,a3
 38000084:	d8000097          	auipc	ra,0xd8000
-38000088:	6ec080e7          	jalr	1772(ra) # 10000770 <__mulsi3>
+38000088:	6f0080e7          	jalr	1776(ra) # 10000774 <__mulsi3>
 3800008c:	00050793          	mv	a5,a0
 38000090:	00078713          	mv	a4,a5
 38000094:	fe042783          	lw	a5,-32(s0)
@@ -1710,7 +1705,7 @@ Disassembly of section .debug_line:
  954:	0004                	.2byte	0x4
  956:	0501                	.2byte	0x501
  958:	09010303          	lb	t1,144(sp)
- 95c:	0008                	.2byte	0x8
+ 95c:	000c                	.2byte	0xc
  95e:	0501                	.2byte	0x501
  960:	0324                	.2byte	0x324
  962:	0900                	.2byte	0x900
@@ -1766,7 +1761,7 @@ Disassembly of section .debug_line:
  9cc:	0000                	.2byte	0x0
  9ce:	0001                	.2byte	0x1
  9d0:	0205                	.2byte	0x205
- 9d2:	0770                	.2byte	0x770
+ 9d2:	0774                	.2byte	0x774
  9d4:	1000                	.2byte	0x1000
  9d6:	03012403          	lw	s0,48(sp)
  9da:	0901                	.2byte	0x901
@@ -2197,7 +2192,7 @@ Disassembly of section .debug_info:
  206:	0000                	.2byte	0x0
  208:	0228                	.2byte	0x228
  20a:	1000                	.2byte	0x1000
- 20c:	0548                	.2byte	0x548
+ 20c:	054c                	.2byte	0x54c
  20e:	0000                	.2byte	0x0
  210:	047e                	.2byte	0x47e
  212:	0000                	.2byte	0x0
@@ -2253,7 +2248,7 @@ Disassembly of section .debug_info:
  27e:	016d                	.2byte	0x16d
  280:	0000                	.2byte	0x0
  282:	1c062403          	lw	s0,448(a2)
- 286:	54100003          	lb	zero,1345(zero) # 541 <_ebss+0x4f9>
+ 286:	58100003          	lb	zero,1409(zero) # 581 <_ebss+0x539>
  28a:	0004                	.2byte	0x4
  28c:	0100                	.2byte	0x100
  28e:	bf9c                	.2byte	0xbf9c
@@ -2334,7 +2329,7 @@ Disassembly of section .debug_info:
  32c:	0100                	.2byte	0x100
  32e:	0995                	.2byte	0x995
  330:	0000                	.2byte	0x0
- 332:	0770                	.2byte	0x770
+ 332:	0774                	.2byte	0x774
  334:	1000                	.2byte	0x1000
  336:	7824                	.2byte	0x7824
  338:	0001                	.2byte	0x1
@@ -2346,7 +2341,7 @@ Disassembly of section .debug_info:
  344:	0280                	.2byte	0x280
  346:	020c                	.2byte	0x20c
  348:	0000                	.2byte	0x0
- 34a:	0770                	.2byte	0x770
+ 34a:	0774                	.2byte	0x774
  34c:	1000                	.2byte	0x1000
  34e:	0024                	.2byte	0x24
 
@@ -2647,7 +2642,7 @@ Disassembly of section .debug_aranges:
   6e:	0000                	.2byte	0x0
   70:	0228                	.2byte	0x228
   72:	1000                	.2byte	0x1000
-  74:	0548                	.2byte	0x548
+  74:	054c                	.2byte	0x54c
 	...
   7e:	0000                	.2byte	0x0
   80:	001c                	.2byte	0x1c
@@ -2658,7 +2653,7 @@ Disassembly of section .debug_aranges:
   8a:	0004                	.2byte	0x4
   8c:	0000                	.2byte	0x0
   8e:	0000                	.2byte	0x0
-  90:	0770                	.2byte	0x770
+  90:	0774                	.2byte	0x774
   92:	1000                	.2byte	0x1000
   94:	0024                	.2byte	0x24
 	...
@@ -3078,7 +3073,7 @@ Disassembly of section .debug_frame:
  18a:	0000                	.2byte	0x0
  18c:	031c                	.2byte	0x31c
  18e:	1000                	.2byte	0x1000
- 190:	0454                	.2byte	0x454
+ 190:	0458                	.2byte	0x458
  192:	0000                	.2byte	0x0
  194:	0e44                	.2byte	0xe44
  196:	4820                	.2byte	0x4820
@@ -3086,7 +3081,7 @@ Disassembly of section .debug_frame:
  19a:	0288                	.2byte	0x288
  19c:	0c44                	.2byte	0xc44
  19e:	0008                	.2byte	0x8
- 1a0:	c1043803          	.4byte	0xc1043803
+ 1a0:	c1043c03          	.4byte	0xc1043c03
  1a4:	c844                	.2byte	0xc844
  1a6:	020c                	.2byte	0x20c
  1a8:	4420                	.2byte	0x4420
